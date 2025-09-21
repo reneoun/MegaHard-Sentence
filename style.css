@@ -39,3 +39,23 @@ section[a4] {
 section[a4] *[contenteditable]:focus-within {
     outline: 0;
 }
+
+#editor {
+  opacity: 0; /* or position off-screen */
+  position: absolute;
+  z-index: 1;
+}
+#preview {
+  position: relative;
+  z-index: 2;
+  pointer-events: none; /* let typing go to editor */
+}
+.cursor {
+  display: inline;
+  border-left: 1px solid black;
+  background: black;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% { border-left: initial; }
+}
