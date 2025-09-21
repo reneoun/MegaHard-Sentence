@@ -24,10 +24,10 @@ section[a4] {
     height: 297mm;
     box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
     padding: 20mm;
+    position: relative;
 }
 
 @media print {
-
     body,
     section[a4] {
         margin: 0;
@@ -36,14 +36,15 @@ section[a4] {
     }
 }
 
-section[a4] *[contenteditable]:focus-within {
-    outline: 0;
-}
 
 #editor {
   opacity: 0; /* or position off-screen */
   position: absolute;
   z-index: 1;
+  top: 20mm;
+  left: 20mm;
+  right: 20mm;
+  bottom: 20mm;
 }
 #preview {
   position: relative;

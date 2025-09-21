@@ -44,8 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 afterSelection;
         }
         
-        // Convert single newlines to line breaks for preview
-        processedMarkdown = processedMarkdown.replace(/\n/g, '  \n');
+        // Replace empty line markers with actual breaks, then handle normal newlines
+        processedMarkdown = processedMarkdown
+            .replace(/^\n/g, '-([EMPTY-LINE])-\n') // Handle empty line at start
+            .replace(/\n(?=\n)/g, '\n-([EMPTY-LINE])-') // Mark each empty line
+            .replace(/-\(\[EMPTY-LINE\]\)-/g, '&nbsp;') // Replace markers with visible space
+            .replace(/\n/g, '  \n'); // Convert remaining newlines to line breaks
         
         let html = marked(processedMarkdown);
         if (typeof html !== "string") {
@@ -58,4 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     textArea.addEventListener("selectionchange", updatePreview);
     textArea.addEventListener("keyup", updatePreview);
     textArea.addEventListener("click", updatePreview);
+    textArea.addEventListener("paste", () => {
+        // Use setTimeout to ensure paste content is processed first
+        setTimeout(updatePreview, 0);
+    });
 });
