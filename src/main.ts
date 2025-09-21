@@ -13,12 +13,49 @@ document.addEventListener("DOMContentLoaded", () => {
         sectionA4.addEventListener("touchstart", onClick);
     }
 
-    textArea.addEventListener("input", () => {
+    const updatePreview = () => {
         const markdown = textArea.value;
-        let html = marked(markdown);
+        const selectionStart = textArea.selectionStart;
+        const selectionEnd = textArea.selectionEnd;
+        
+        let processedMarkdown;
+        
+        if (selectionStart === selectionEnd) {
+            // No selection, just cursor
+            const beforeCursor = markdown.slice(0, selectionStart);
+            const afterCursor = markdown.slice(selectionStart);
+            
+            let cursorMarkdown;
+            if (selectionStart > 0 && markdown[selectionStart - 1] === '\n') {
+                cursorMarkdown = '<span class="cursor"></span>&#8203;';
+            } else {
+                cursorMarkdown = '&#8203;<span class="cursor"></span>&#8203;';
+            }
+            
+            processedMarkdown = beforeCursor + cursorMarkdown + afterCursor;
+        } else {
+            // Text is selected
+            const beforeSelection = markdown.slice(0, selectionStart);
+            const selectedText = markdown.slice(selectionStart, selectionEnd);
+            const afterSelection = markdown.slice(selectionEnd);
+            
+            processedMarkdown = beforeSelection + 
+                '<span class="selection">' + selectedText + '</span>' + 
+                afterSelection;
+        }
+        
+        // Convert single newlines to line breaks for preview
+        processedMarkdown = processedMarkdown.replace(/\n/g, '  \n');
+        
+        let html = marked(processedMarkdown);
         if (typeof html !== "string") {
             html = String(html);
         }
         if (preview) preview.innerHTML = html;
-    });
+    };
+
+    textArea.addEventListener("input", updatePreview);
+    textArea.addEventListener("selectionchange", updatePreview);
+    textArea.addEventListener("keyup", updatePreview);
+    textArea.addEventListener("click", updatePreview);
 });

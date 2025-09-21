@@ -53,8 +53,12 @@ section[a4] *[contenteditable]:focus-within {
 .cursor {
   display: inline;
   border-left: 1px solid black;
-  background: black;
+  width: 0;
   animation: blink 1s step-end infinite;
+}
+.selection {
+  background-color: #3390ff;
+  color: white;
 }
 @keyframes blink {
   50% { border-left: initial; }
