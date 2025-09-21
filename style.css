@@ -45,11 +45,13 @@ section[a4] {
   left: 20mm;
   right: 20mm;
   bottom: 20mm;
+  pointer-events: none; /* prevent interaction */
+  /* white-space: pre-wrap; preserve whitespace */
 }
 #preview {
   position: relative;
   z-index: 2;
-  pointer-events: none; /* let typing go to editor */
+  pointer-events: auto; /* allow clicks on preview */
 }
 .cursor {
   display: inline;

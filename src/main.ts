@@ -66,4 +66,39 @@ document.addEventListener("DOMContentLoaded", () => {
         // Use setTimeout to ensure paste content is processed first
         setTimeout(updatePreview, 0);
     });
+
+    // Handle clicks on preview to move cursor in textarea
+    preview.addEventListener("click", (e) => {
+        e.preventDefault();
+        
+        // Get click position in preview
+        const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+        if (!range) return;
+        
+        // Calculate approximate position in original text
+        const clickedNode = range.startContainer;
+        const offset = range.startOffset;
+        
+        // Simple approximation: count text content before click position
+        let textPosition = 0;
+        const walker = document.createTreeWalker(
+            preview,
+            NodeFilter.SHOW_TEXT,
+            null,
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+            if (node === clickedNode) {
+                textPosition += offset;
+                break;
+            }
+            textPosition += node.textContent?.length || 0;
+        }
+        
+        // Set cursor position in textarea (approximate)
+        textArea.focus();
+        textArea.setSelectionRange(textPosition, textPosition);
+        updatePreview();
+    });
 });
