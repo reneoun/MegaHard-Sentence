@@ -1,0 +1,19 @@
+{
+  "name": "megahard-sentence",
+  "module": "src/main.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run vite",
+    "build": "bun run vite build",
+    "preview": "bun run vite preview"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "vite": "^7.1.6"
+  }
+}
