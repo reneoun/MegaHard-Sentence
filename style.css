@@ -50,13 +50,7 @@ section[a4] {
 }
 
 /* Needs to be a toggle, user should be able to enable or disable any effect */
-#editor:focus-within {
-  /* Mellow elevate selection + add transition */
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  transition: box-shadow 0.2s ease-in-out; */
-
-  /* Add a subtle scale effect + add padding */
-  /* padding: 2mm;
-  transform: scale(1.02);
-  transition: transform 0.2s ease-in-out, padding 0.2s ease-in-out; */
+div[contenteditable]:focus-within {
+    border: none;
+    outline: none;
 }
