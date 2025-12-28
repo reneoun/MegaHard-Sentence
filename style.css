@@ -38,31 +38,25 @@ section[a4] {
 
 
 #editor {
-  opacity: 0; /* or position off-screen */
   position: absolute;
   z-index: 1;
   top: 20mm;
   left: 20mm;
   right: 20mm;
   bottom: 20mm;
-  pointer-events: none; /* prevent interaction */
-  /* white-space: pre-wrap; preserve whitespace */
+  outline: none;
+  border: none;
+  resize: none;
 }
-#preview {
-  position: relative;
-  z-index: 2;
-  pointer-events: auto; /* allow clicks on preview */
-}
-.cursor {
-  display: inline;
-  border-left: 1px solid black;
-  width: 0;
-  animation: blink 1s step-end infinite;
-}
-.selection {
-  background-color: #3390ff;
-  color: white;
-}
-@keyframes blink {
-  50% { border-left: initial; }
+
+/* Needs to be a toggle, user should be able to enable or disable any effect */
+#editor:focus-within {
+  /* Mellow elevate selection + add transition */
+  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2s ease-in-out; */
+
+  /* Add a subtle scale effect + add padding */
+  /* padding: 2mm;
+  transform: scale(1.02);
+  transition: transform 0.2s ease-in-out, padding 0.2s ease-in-out; */
 }

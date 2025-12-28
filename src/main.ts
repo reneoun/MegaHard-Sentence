@@ -1,4 +1,18 @@
-import { marked } from "marked";
+const keyboardShortcuts = new Map<string[], () => void>([
+    [["Meta", "Enter"], () => {
+        const sectionA4 = document.querySelector("section[a4]:last-child") as HTMLElement;
+        // Implement the action for Control + Enter => new a4 page
+        const newSection = sectionA4.cloneNode(true) as HTMLElement;
+        sectionA4.parentNode?.appendChild(newSection);
+        newSection.scrollIntoView({ behavior: "smooth" });
+        const textArea = newSection.querySelector("textarea") as HTMLTextAreaElement;
+        if (textArea) {
+            textArea.addEventListener("keydown", textAreaKeyListener);
+            textArea.value = "";
+            textArea.focus();
+        }
+    }]
+]);
 
 document.addEventListener("DOMContentLoaded", () => {
     const textArea = document.querySelector("textarea#editor") as HTMLTextAreaElement;
@@ -13,92 +27,48 @@ document.addEventListener("DOMContentLoaded", () => {
         sectionA4.addEventListener("touchstart", onClick);
     }
 
-    const updatePreview = () => {
-        const markdown = textArea.value;
-        const selectionStart = textArea.selectionStart;
-        const selectionEnd = textArea.selectionEnd;
-        
-        let processedMarkdown;
-        
-        if (selectionStart === selectionEnd) {
-            // No selection, just cursor
-            const beforeCursor = markdown.slice(0, selectionStart);
-            const afterCursor = markdown.slice(selectionStart);
-            
-            let cursorMarkdown;
-            if (selectionStart > 0 && markdown[selectionStart - 1] === '\n') {
-                cursorMarkdown = '<span class="cursor"></span>&#8203;';
-            } else {
-                cursorMarkdown = '&#8203;<span class="cursor"></span>&#8203;';
-            }
-            
-            processedMarkdown = beforeCursor + cursorMarkdown + afterCursor;
-        } else {
-            // Text is selected
-            const beforeSelection = markdown.slice(0, selectionStart);
-            const selectedText = markdown.slice(selectionStart, selectionEnd);
-            const afterSelection = markdown.slice(selectionEnd);
-            
-            processedMarkdown = beforeSelection + 
-                '<span class="selection">' + selectedText + '</span>' + 
-                afterSelection;
-        }
-        
-        // Replace empty line markers with actual breaks, then handle normal newlines
-        processedMarkdown = processedMarkdown
-            .replace(/^\n/g, '-([EMPTY-LINE])-\n') // Handle empty line at start
-            .replace(/\n(?=\n)/g, '\n-([EMPTY-LINE])-') // Mark each empty line
-            .replace(/-\(\[EMPTY-LINE\]\)-/g, '&nbsp;') // Replace markers with visible space
-            .replace(/\n/g, '  \n'); // Convert remaining newlines to line breaks
-        
-        let html = marked(processedMarkdown);
-        if (typeof html !== "string") {
-            html = String(html);
-        }
-        if (preview) preview.innerHTML = html;
-    };
-
-    textArea.addEventListener("input", updatePreview);
-    textArea.addEventListener("selectionchange", updatePreview);
-    textArea.addEventListener("keyup", updatePreview);
-    textArea.addEventListener("click", updatePreview);
-    textArea.addEventListener("paste", () => {
-        // Use setTimeout to ensure paste content is processed first
-        setTimeout(updatePreview, 0);
-    });
-
-    // Handle clicks on preview to move cursor in textarea
-    preview.addEventListener("click", (e) => {
-        e.preventDefault();
-        
-        // Get click position in preview
-        const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-        if (!range) return;
-        
-        // Calculate approximate position in original text
-        const clickedNode = range.startContainer;
-        const offset = range.startOffset;
-        
-        // Simple approximation: count text content before click position
-        let textPosition = 0;
-        const walker = document.createTreeWalker(
-            preview,
-            NodeFilter.SHOW_TEXT,
-            null,
-        );
-        
-        let node;
-        while (node = walker.nextNode()) {
-            if (node === clickedNode) {
-                textPosition += offset;
-                break;
-            }
-            textPosition += node.textContent?.length || 0;
-        }
-        
-        // Set cursor position in textarea (approximate)
-        textArea.focus();
-        textArea.setSelectionRange(textPosition, textPosition);
-        updatePreview();
-    });
+    textArea.addEventListener("keydown", textAreaKeyListener);
 });
+
+const textAreaKeyListener = (event: KeyboardEvent) => {
+    keyboardShortcuts.forEach((action, keys) => {
+        if (keys.every(key => event.getModifierState(key) || event.key === key)) {
+            event.preventDefault();
+            action();
+        }
+    });
+
+    const textArea = event.target as HTMLTextAreaElement;
+    if (textArea) {
+        // if empty textarea and user presses Backspace, remove the a4 section if more than one exists
+        if (event.key === "Backspace" && textArea.value === "") {
+            const sectionA4 = textArea.closest("section[a4]") as HTMLElement;
+            const allSections = document.querySelectorAll("section[a4]");
+            if (allSections.length > 1 && sectionA4) {
+                sectionA4.remove();
+                const lastSection = document.querySelector("section[a4]:last-child") as HTMLElement;
+                const lastTextArea = lastSection.querySelector("textarea") as HTMLTextAreaElement;
+                if (lastTextArea) {
+                    lastTextArea.focus();
+                }
+            }
+        }
+
+        // if cursor is at the start and user presses arrow up or left, move focus to previous textarea
+        if ((event.key === "ArrowUp" || event.key === "ArrowLeft") && textArea.selectionStart === 0) {
+            const sectionA4 = textArea.parentElement?.previousElementSibling?.querySelector("textarea") as HTMLElement;
+            
+            if (sectionA4) {
+                sectionA4.focus();
+            }
+        }
+
+        // if cursor is at the end and user presses arrow down or right, move focus to next textarea
+        if ((event.key === "ArrowDown" || event.key === "ArrowRight") && textArea.selectionStart === textArea.value.length) {
+            const sectionA4 = textArea.parentElement?.nextElementSibling?.querySelector("textarea") as HTMLElement;
+            if (sectionA4) {
+                sectionA4.focus();
+            }
+        }
+    }
+};
